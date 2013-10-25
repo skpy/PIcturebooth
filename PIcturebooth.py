@@ -52,6 +52,7 @@ def camera():
 		with picamera.PiCamera() as camera:
 			photo=path+now+'.jpg'
 			camera.resolution = (2592, 1944)
+			camera.vflip = True
 			camera.capture(photo)
 			thumb = create_thumbnail( os.path.basename(photo) )
 			thumbnail = '<img src="'+path+thumb+'" />'
