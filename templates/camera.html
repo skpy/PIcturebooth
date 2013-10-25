@@ -1,0 +1,11 @@
+<!doctype html>
+<title>PhotoBooth</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+	<div class=photo>{{ photo|safe }}</div>
+	<div class=button>
+		<form action="{{ url_for('camera') }}" method=post>
+		<input type=submit value=Snap>
+		</form>
+	</div>
+</div>
