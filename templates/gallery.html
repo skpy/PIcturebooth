@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head><title>Gallery</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script>
+	var path = "{{photopath}}";
+	var d, last_time, refresh_url;
+	var photoDiv = $("#photos"); // ID of div in the body below.
+
+	// this function will run each 1000 ms until stopped with clearInterval() ... http://stackoverflow.com/a/3510518
+	var i = setInterval(function () {
+
+		if ( d===undefined ) {
+			url = "/refresh";
+			DoAjaxRequest( url );
+		}
+		d = new Date();
+
+		last_time = d.getHours().toString() + d.getMinutes().toString() + d.getSeconds().toString(); // 24 hour Hours, Minutes, Seconds to match %H%M%S. Note this does not seem to add leading zeroes.
+		url = "/refresh/" + last_time;
+
+		DoAjaxRequest( url );
+
+	}, 1000); // 1000ms interval (goes back to the setInterval line up above)
+
+	function DoAjaxRequest( refresh_url ) {
+		$.ajax({
+			url: refresh_url,
+			cache: false,
+			dataType: "json"	// will turn JSON received into an array of objects
+ 		}).fail(function() {
+			clearInterval(i); 	// on failure, stop refreshing
+		}).done(function( contents) {
+			PrependURLS(contents);
+		});
+	}
+	function PrependURLS( objects ) {
+		for( var i = 0; i < objects.length; i++) {
+
+			$("#photos").prepend($('<img>', {
+				src: path + objects[i].url,
+				width: "30%",
+				title: "image text"
+
+			}));
+		}
+	}
+</script>
+</head>
+<body>
+<div id="photos">
+</div>
+</body>
+</html>

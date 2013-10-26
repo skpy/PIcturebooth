@@ -66,6 +66,10 @@ def camera():
 			thumbnail = 'Take a picture!'
 	return render_template('camera.html', photo=thumbnail)
 
+@app.route('/gallery')
+def gallery():
+	return render_template('gallery.html', photopath=path)
+
 if __name__ == '__main__':
 	# make sure a directory for today's photos exists
 	if not (os.path.isdir(path)):
