@@ -5,24 +5,21 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 <script>
 	var path = "{{photopath}}";
-	var d, last_time, refresh_url;
+	var offset, refresh_url;
 	var photoDiv = $("#photos"); // ID of div in the body below.
 
 	// this function will run each 1000 ms until stopped with clearInterval() ... http://stackoverflow.com/a/3510518
 	var i = setInterval(function () {
 
-		if ( d===undefined ) {
+		if ( offset===undefined ) {
 			url = "/refresh";
 			DoAjaxRequest( url );
 		}
-		d = new Date();
-
-		last_time = d.getHours().toString() + d.getMinutes().toString() + d.getSeconds().toString(); // 24 hour Hours, Minutes, Seconds to match %H%M%S. Note this does not seem to add leading zeroes.
-		url = "/refresh/" + last_time;
+		url = "/refresh/" + offset;
 
 		DoAjaxRequest( url );
 
-	}, 1000); // 1000ms interval (goes back to the setInterval line up above)
+	}, 5000); // 5000ms interval (goes back to the setInterval line up above)
 
 	function DoAjaxRequest( refresh_url ) {
 		$.ajax({
@@ -41,9 +38,10 @@
 			$("#photos").prepend($('<img>', {
 				src: path + objects[i].url,
 				width: "30%",
-				title: "image text"
+				title: objects[i].url,
 
 			}));
+			offset++;
 		}
 	}
 </script>

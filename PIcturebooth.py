@@ -1,5 +1,5 @@
 # PIcture Booth
-import glob, json, os, sys, time
+import fnmatch, glob, json, os, sys, time
 import Image
 import picamera
 from flask import Flask, request, redirect, url_for, render_template, send_file
@@ -18,27 +18,34 @@ def create_thumbnail(photo):
 	im.save(path+outfile, "JPEG")
 	return outfile
 
+# return a list of all thumbnails
+def get_thumbnails(offset):
+	thumbs = []
+	for file in sorted(os.listdir(path)):
+		if fnmatch.fnmatch(file, '*_t.jpg'):
+			thumbs.append(file)
+	if offset:
+		return thumbs[offset+1:]
+	else:
+		return thumbs
+
 # by default, show the gallery of this session's photos
 @app.route('/')
-def hello_world():
-	return 'Hello world!'
+@app.route('/gallery')
+def gallery():
+	return render_template('gallery.html', photopath=path)
 
 @app.route('/photos/<path:photo>')
 def show_photo(photo=None):
 	return send_file('photos/'+photo)
 
 @app.route('/refresh')
-@app.route('/refresh/<last>')
-def refresh(last=None):
-	all_pictures = os.listdir(path)
-	all_pictures.sort()
-	if last:
-		x = all_pictures.index(last)
-		fresh = all_pictures[x+1:]
-	else:
-		fresh = all_pictures
+@app.route('/refresh/<int:offset>')
+def refresh(offset=0):
+	thumbs = get_thumbnails(offset)
+	# return some JSON
 	j = []
-	for file in fresh:
+	for file in thumbs:
 		d = {}
 		d['url'] = file
 		j.append(d)
@@ -65,10 +72,6 @@ def camera():
 			# no images yet.
 			thumbnail = 'Take a picture!'
 	return render_template('camera.html', photo=thumbnail)
-
-@app.route('/gallery')
-def gallery():
-	return render_template('gallery.html', photopath=path)
 
 if __name__ == '__main__':
 	# make sure a directory for today's photos exists
